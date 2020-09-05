@@ -1,0 +1,304 @@
+<!DOCTYPE html SYSTEM "http://www.thymeleaf.org/dtd/xhtml1-strict-thymeleaf-spring4-4.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Hello Thymeleaf</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <!-- 引入样式 -->
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css"/>
+    <!-- 引入组件库 -->
+    <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <style>
+        .text {
+        font-size: 14px;
+    }
+
+    .item {
+        margin-bottom: 18px;
+    }
+
+    .clearfix:before,
+    .clearfix:after {
+        display: table;
+        content: "";
+    }
+
+    .clearfix:after {
+        clear: both
+    }
+    </style>
+</head>
+<body>
+<div id="insertdic">
+    <button @click="getDictionaryTree">getDictionaryTree</button>
+    <el-dialog :visible.sync="opendictionary" width="30%">
+        <el-form ref="form" :model="dictionaryForm" label-width="80px">
+            <el-form-item label="名称">
+                <el-input v-model="dictionaryForm.mc"></el-input>
+            </el-form-item>
+            <el-form-item label="代码">
+                <el-input v-model="dictionaryForm.dm"></el-input>
+            </el-form-item>
+            <el-form-item label="注释">
+                <el-input v-model="dictionaryForm.zs"></el-input>
+            </el-form-item>
+            <el-form-item label="序号">
+                <el-input v-model="dictionaryForm.xh"></el-input>
+            </el-form-item>
+            <el-form-item label="状态" prop="zt">
+                <el-radio-group v-model="dictionaryForm.zt">
+                    <el-radio label="启用"></el-radio>
+                    <el-radio label="停用"></el-radio>
+                    <el-radio label="废弃"></el-radio>
+                </el-radio-group>
+            </el-form-item>
+        </el-form>
+        <span slot="footer" class="dialog-footer">
+					<el-button @click="opendictionary = false">取 消</el-button>
+					<el-button type="primary" @click="dictionarySubmit">确 定</el-button>
+				</span>
+    </el-dialog>
+    <el-dialog :visible.sync="opendictionaryitem" width="30%">
+        <el-form ref="form" :model="dictionaryItemForm" label-width="80px">
+            <el-form-item label="名称">
+                <el-input v-model="dictionaryItemForm.mc"></el-input>
+            </el-form-item>
+            <el-form-item label="代码">
+                <el-input v-model="dictionaryItemForm.dm"></el-input>
+            </el-form-item>
+            <el-form-item label="拼音">
+                <el-input v-model="dictionaryItemForm.py"></el-input>
+            </el-form-item>
+            <el-form-item label="名称简写">
+                <el-input v-model="dictionaryItemForm.mcjx"></el-input>
+            </el-form-item>
+            <el-form-item label="序号">
+                <el-input v-model="dictionaryItemForm.xh"></el-input>
+            </el-form-item>
+            <el-form-item label="状态" prop="zt">
+                <el-radio-group v-model="dictionaryItemForm.zt">
+                    <el-radio label="启用"></el-radio>
+                    <el-radio label="停用"></el-radio>
+                    <el-radio label="废弃"></el-radio>
+                </el-radio-group>
+            </el-form-item>
+
+        </el-form>
+        <span slot="footer" class="dialog-footer">
+					<el-button @click="opendictionaryitem = false">取 消</el-button>
+					<el-button type="primary" @click="dictionaryItemSubmit">确 定</el-button>
+				</span>
+    </el-dialog>
+    <div style="display: flex;">
+        <el-card class="box-card" style="width: 50%;">
+            <div slot="header" class="clearfix">
+                <el-row>
+                    <el-col :span="6"><span>字典名称</span></el-col>
+                    <el-col :span="12">
+                        <el-input placeholder="请输入内容" v-model="input3" class="input-with-select">
+                            <el-button slot="append" icon="el-icon-search"></el-button>
+                        </el-input>
+                    </el-col>
+                    <el-col :span="6">
+                        <el-button style="float: right; padding: 3px 0" type="text" @click="opendictionary = true">添加
+                        </el-button>
+                    </el-col>
+                </el-row>
+            </div>
+            <el-table @current-change="dictionariesChange" :data="dictionariesTableData" border style="width: 100%">
+                <el-table-column type="index" width="55">
+                </el-table-column>
+                <el-table-column prop="name" label="名称" width="200">
+                </el-table-column>
+                <el-table-column prop="code" label="代码" width="130">
+                </el-table-column>
+                <el-table-column fixed="right" label="操作" width="120">
+                    <template slot-scope="scope">
+                        <el-button @click="handleClick(scope.row)" type="text" size="small">查看</el-button>
+                        <el-button type="text" size="small">编辑</el-button>
+                        <el-button type="text" size="small">删除</el-button>
+                    </template>
+                </el-table-column>
+            </el-table>
+            <el-pagination @size-change="handleSizeChange" @current-change="handleCurrentChange" :current-page="dicPage"
+                           :page-sizes="[10, 20, 30, 40]" :page-size="dicPageSize"
+                           layout="total, sizes, prev, pager, next, jumper" :total="dicTotal">
+            </el-pagination>
+        </el-card>
+        <el-card class="box-card" style="width: 50%;">
+            <div slot="header" class="clearfix">
+                <el-row>
+                    <el-col :span="6"><span>字典项信息</span></el-col>
+                    <el-col :span="12">
+                        <el-input placeholder="请输入内容" v-model="input3" class="input-with-select">
+                            <el-button slot="append" icon="el-icon-search"></el-button>
+                        </el-input>
+                    </el-col>
+                    <el-col :span="6">
+                        <div>
+                            <el-button style="float: right; padding: 3px 0;margin-left: 11px;" type="text"
+                                       @click="opendictionaryitem = true">添加
+                            </el-button>
+                            <el-button style="float: right; padding: 3px 0" type="text">导入表格</el-button>
+                            <el-button style="float: right; padding: 3px 0" type="text">清空</el-button>
+                        </div>
+                    </el-col>
+                </el-row>
+            </div>
+            <el-table :data="dictionariesItemTableData" border style="width: 100%">
+                <el-table-column type="index" width="55">
+                </el-table-column>
+                <el-table-column prop="name" label="名称" width="150">
+                </el-table-column>
+                <el-table-column prop="code" label="代码" width="100">
+                </el-table-column>
+                <el-table-column prop="py" label="拼音" width="100">
+                </el-table-column>
+                <el-table-column fixed="right" label="操作" width="100">
+                    <template slot-scope="scope">
+                        <el-button @click="handleClick(scope.row)" type="text" size="small">查看</el-button>
+                        <el-button type="text" size="small">编辑</el-button>
+                        <el-button type="text" size="small">删除</el-button>
+                    </template>
+                </el-table-column>
+            </el-table>
+        </el-card>
+    </div>
+</div>
+</body>
+<script>
+    new Vue({
+        el: '#insertdic',
+        data: {
+            dictionaryForm: {
+                mc: '',
+                dm: '',
+                zs: '',
+                xh: '',
+                zt: '',
+            },
+            dictionaryItemForm: {
+                mc: '',
+                dm: '',
+                py: '',
+                mcjx: '',
+                xh: '',
+                zt: '',
+            },
+            opendictionary: false,
+            opendictionaryitem: false,
+            dicPage: 1,
+            dicPageSize: 10,
+            dicTotal: 40,
+            dictionariesTableData: [],
+            dictionariesItemTableData: []
+        },
+        created: function () {
+            this.getDictionaries()
+        },
+        methods: {
+            handleClick: function (row) {
+                console.log(row);
+            },
+            dictionarySubmit: function () {
+                var _this = this
+                _this.opendictionary = false
+                console.log(JSON.stringify(_this.dictionaryForm));
+            },
+            dictionaryItemSubmit: function () {
+                var _this = this
+                _this.opendictionaryitem = false
+                console.log(JSON.stringify(_this.dictionaryItemForm));
+            },
+            getDictionaries: function () {
+                var _this = this
+                axios.get('/dictionaries/search', {
+                    params: {
+                        page: _this.dicPage,
+                        size: _this.dicPageSize,
+                        sort: "seq,desc"
+                    }
+                })
+                    .then(function (response) {
+                        _this.dictionariesTableData = response.data.content
+                        _this.dicPage = response.data.totalPages
+                        // "last":false,"totalElements":283,"totalPages":29,"number":0,"size":10
+                        console.log(JSON.stringify(response));
+                    })
+                    .catch(function (error) {
+                        console.log(error);
+                    });
+            },
+            handleSizeChange: function (val) {
+                var _this = this
+                _this.getDictionaries()
+            },
+            handleCurrentChange: function (val) {
+                console.log("每页 " + val + " 条");
+            },
+            dictionariesChange: function (row) {
+                var _this = this
+                if (row) {
+                    // this.currentRow = row
+                    // this.dictionaryId = row.id
+                    _this.getDictionariesItem(row.id)
+                    console.log(row)
+                }
+            },
+            getDictionariesItem: function (id) {
+                var _this = this
+                axios.get('/dictionary/dictionaryItems/search', {
+                    params: {
+                        page: 0,
+                        size: 10,
+                        sort: "seq",
+                        dictionaryId: id
+                    }
+                })
+                    .then(function (response) {
+                        _this.dictionariesItemTableData = response.data.content
+                        console.log(JSON.stringify(response.data.content));
+                    })
+                    .catch(function (error) {
+                        console.log(error);
+                    });
+            },
+            saveDictionaries: function () {
+                var _this = this
+                axios.post('/dictionary', {
+                    code: "D_TEST",
+                    comments: "注释",
+                    name: "测试",
+                    seq: "111",
+                    status: "01"
+                })
+                    .then(function (response) {
+                        console.log(JSON.stringify(response.data));
+                    })
+                    .catch(function (error) {
+                        console.log(error);
+                    });
+            },
+            getDictionaryTree: function () {
+                axios.get('/tree/quote', {
+                    params: {
+                        entityName: "(select ID,CODE,NAME,PID from SYS_DICTIONARY_ITEM where DICTIONARY_ID='4028818173fa005e01740b72d1960000' order by seq) dic",
+                        idProperty: "ID",
+                        pidProperty: "PID",
+                        displayProperty: "NAME",
+                        dictionaryFilterScript: "",
+                        topDm: ""
+                    }
+                })
+                    .then(function (response) {
+                        console.log(JSON.stringify(response.data));
+                    })
+                    .catch(function (error) {
+                        console.log(error);
+                    });
+            }
+        }
+    })
+</script>
+</html>
