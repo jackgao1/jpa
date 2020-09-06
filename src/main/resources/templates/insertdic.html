@@ -4,6 +4,7 @@
     <meta charset="UTF-8"/>
     <title>Hello Thymeleaf</title>
     <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <script>Vue.config.productionTip = false</script>
     <!-- 引入样式 -->
     <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css"/>
     <!-- 引入组件库 -->
@@ -31,55 +32,71 @@
 </head>
 <body>
 <div id="insertdic">
+    <button @click="getDictionaryTree">getDictionaryTree</button>
+
     <el-dialog :visible.sync="opendictionary" width="30%">
         <el-form ref="form" :model="dictionaryForm" label-width="80px">
-            <el-form-item label="名称">
-                <el-input v-model="dictionaryForm.mc"></el-input>
+            <el-form-item label="名称"
+                          :rules="[
+      { required: true, message: '名称不能为空'}
+    ]">
+                <el-input v-model="dictionaryForm.name"></el-input>
             </el-form-item>
-            <el-form-item label="代码">
-                <el-input v-model="dictionaryForm.dm"></el-input>
+            <el-form-item label="代码" :rules="[
+      { required: true, message: '代码不能为空'}
+    ]">
+                <el-input v-model="dictionaryForm.code"></el-input>
             </el-form-item>
             <el-form-item label="注释">
-                <el-input v-model="dictionaryForm.zs"></el-input>
+                <el-input v-model="dictionaryForm.comments"></el-input>
             </el-form-item>
-            <el-form-item label="序号">
-                <el-input v-model="dictionaryForm.xh"></el-input>
+            <el-form-item label="序号" :rules="[
+      { type: 'number', message: '序号必须为数字值'}
+    ]">
+                <el-input v-model="dictionaryForm.seq"></el-input>
             </el-form-item>
-            <el-form-item label="状态" prop="zt">
-                <el-radio-group v-model="dictionaryForm.zt">
-                    <el-radio label="启用"></el-radio>
-                    <el-radio label="停用"></el-radio>
-                    <el-radio label="废弃"></el-radio>
+            <el-form-item label="状态" prop="status">
+                <el-radio-group v-model="dictionaryForm.status">
+                    <el-radio label="01">启用</el-radio>
+                    <el-radio label="02">停用</el-radio>
+                    <el-radio label="03">废弃</el-radio>
                 </el-radio-group>
             </el-form-item>
         </el-form>
         <span slot="footer" class="dialog-footer">
 					<el-button @click="opendictionary = false">取 消</el-button>
-					<el-button type="primary" @click="dictionarySubmit">确 定</el-button>
+					<el-button type="primary" @click="saveDictionaries()">确 定</el-button>
 				</span>
     </el-dialog>
     <el-dialog :visible.sync="opendictionaryitem" width="30%">
-        <el-form ref="form" :model="dictionaryItemForm" label-width="80px">
-            <el-form-item label="名称">
-                <el-input v-model="dictionaryItemForm.mc"></el-input>
+        <el-form ref="form" :rules="dicItemRules" :model="dictionaryItemForm" label-width="80px">
+            <el-form-item label="名称"
+                          :rules="[
+      { required: true, message: '名称不能为空'}
+    ]">
+                <el-input v-model="dictionaryForm.name"></el-input>
             </el-form-item>
-            <el-form-item label="代码">
-                <el-input v-model="dictionaryItemForm.dm"></el-input>
+            <el-form-item label="代码" :rules="[
+      { required: true, message: '代码不能为空'}
+    ]">
+                <el-input v-model="dictionaryForm.code"></el-input>
             </el-form-item>
             <el-form-item label="拼音">
                 <el-input v-model="dictionaryItemForm.py"></el-input>
             </el-form-item>
             <el-form-item label="名称简写">
-                <el-input v-model="dictionaryItemForm.mcjx"></el-input>
+                <el-input v-model="dictionaryItemForm.shortName"></el-input>
             </el-form-item>
-            <el-form-item label="序号">
-                <el-input v-model="dictionaryItemForm.xh"></el-input>
+            <el-form-item label="序号" :rules="[
+      { type: 'number', message: '序号必须为数字值'}
+    ]">
+                <el-input v-model="dictionaryItemForm.seq"></el-input>
             </el-form-item>
-            <el-form-item label="状态" prop="zt">
-                <el-radio-group v-model="dictionaryItemForm.zt">
-                    <el-radio label="启用"></el-radio>
-                    <el-radio label="停用"></el-radio>
-                    <el-radio label="废弃"></el-radio>
+            <el-form-item label="状态" prop="status">
+                <el-radio-group v-model="dictionaryItemForm.status">
+                    <el-radio label="01">启用</el-radio>
+                    <el-radio label="02">停用</el-radio>
+                    <el-radio label="03">废弃</el-radio>
                 </el-radio-group>
             </el-form-item>
 
@@ -185,26 +202,29 @@
             dicItemSearchString: "",
             dicSearchString: "",
             dictionaryForm: {
-                mc: '',
-                dm: '',
-                zs: '',
-                xh: '',
-                zt: '',
+                name: '',
+                code: '',
+                comments: '',
+                seq: '',
+                status: '01'
             },
             dictionaryItemForm: {
-                mc: '',
-                dm: '',
-                py: '',
-                mcjx: '',
-                xh: '',
-                zt: '',
+                code: "",
+                dictionaryId: "40288181745988ec01745cc7f1fa0000",
+                name: "",
+                pid: "",
+                py: "",
+                seq: "",
+                shortName: "",
+                status: "01"
             },
+            row: null,
             opendictionary: false,
             opendictionaryitem: false,
-            dicPage: 1,
+            dicPage: 0,
             dicTotal: null,
             dicPageSize: 10,
-            dicItemPage: 1,
+            dicItemPage: 0,
             dicItemTotal: null,
             dicItemPageSize: 10,
             dictionaryId: "",
@@ -212,42 +232,20 @@
             dictionariesItemTableData: []
         },
         created: function () {
-            this.getDictionaries()
+            var _this = this
+            _this.getDictionaries()
+            _this.getDictionaryTree()
         },
         methods: {
             handleClick: function (row) {
                 console.log(row);
-            },
-            dictionarySubmit: function () {
-                var _this = this
-                _this.opendictionary = false
-                console.log(JSON.stringify(_this.dictionaryForm));
             },
             dictionaryItemSubmit: function () {
                 var _this = this
                 _this.opendictionaryitem = false
                 console.log(JSON.stringify(_this.dictionaryItemForm));
             },
-            getDictionaries: function () {
-                var _this = this
-                axios.get('/dictionaries/search', {
-                    params: {
-                        page: _this.dicPage,
-                        size: _this.dicPageSize,
-                        sort: "seq,desc",
-                        searchString: _this.dicSearchString
-                    }
-                })
-                    .then(function (response) {
-                        _this.dictionariesTableData = response.data.content
-                        _this.dicTotal = response.data.totalElements
-                        _this.dicPage = response.data.number
-                        console.log(response.data);
-                    })
-                    .catch(function (error) {
-                        console.log(error);
-                    });
-            },
+
             dicItemSizeChange: function (val) {
                 var _this = this
                 _this.dicItemPageSize = val
@@ -271,9 +269,30 @@
             dictionariesChange: function (row) {
                 var _this = this
                 if (row) {
-                    this.dictionaryId = row.id
+                    _this.row = row
+                    _this.dictionaryId = row.id
                     _this.getDictionariesItem(this.dictionaryId)
                 }
+            },
+            getDictionaries: function () {
+                var _this = this
+                axios.get('/dictionaries/search', {
+                    params: {
+                        page: _this.dicPage,
+                        size: _this.dicPageSize,
+                        sort: "seq,desc",
+                        searchString: _this.dicSearchString
+                    }
+                })
+                    .then(function (response) {
+                        _this.dictionariesTableData = response.data.content
+                        _this.dicTotal = response.data.totalElements
+                        _this.dicPage = response.data.number
+                        console.log(response.data);
+                    })
+                    .catch(function (error) {
+                        console.log(error);
+                    });
             },
             getDictionariesItem: function (id) {
                 var _this = this
@@ -287,7 +306,7 @@
                     }
                 })
                     .then(function (response) {
-                        _this.dictionariesItemTableData = response.data.content
+                        this.dictionariesItemTableData = response.data.content
                         console.log(JSON.stringify(response.data.content));
                     })
                     .catch(function (error) {
@@ -296,27 +315,26 @@
             },
             saveDictionaries: function () {
                 var _this = this
-                axios.post('/dictionary', {
-                    code: "D_TEST",
-                    comments: "注释",
-                    name: "测试",
-                    seq: "111",
-                    status: "01"
-                })
+                var dictionaryForm = _this.dictionaryForm
+                axios.post('/dictionaries', dictionaryForm)
                     .then(function (response) {
-                        console.log(JSON.stringify(response.data));
+                        _this.opendictionaryitem = false
+                        _this.dicSearchString = ""
+                        _this.dicPage = 0
+                        _this.getDictionaries()
                     })
                     .catch(function (error) {
                         console.log(error);
                     });
             },
             getDictionaryTree: function () {
+                var _this = this
                 axios.get('/tree/quote', {
                     params: {
-                        entityName: "(select ID,CODE,NAME,PID from SYS_DICTIONARY_ITEM where DICTIONARY_ID='4028818173fa005e01740b72d1960000' order by seq) dic",
-                        idProperty: "ID",
-                        pidProperty: "PID",
-                        displayProperty: "NAME",
+                        entityName: "select dic.id, dic.pid, dic.name from (select id,code,name,pid from sys_dictionary_item where dictionary_id='4028818173fa005e01740b72d1960000' order by seq) dic",
+                        idProperty: "id",
+                        pidProperty: "pid",
+                        displayProperty: "name",
                         dictionaryFilterScript: "",
                         topDm: ""
                     }

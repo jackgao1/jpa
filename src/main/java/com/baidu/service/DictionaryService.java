@@ -80,6 +80,7 @@ public class DictionaryService {
         }
         //展示驼峰转换，实际上应该实现查询sys_entity和sys_table的关联的属性字段
         final String entityName2 = com.baidu.utils.StringUtils.HumpToline(entityName);
+        System.out.println(entityName2);
         final String idProperty2 = com.baidu.utils.StringUtils.HumpToline(idProperty);
         final String pidProperty2 = com.baidu.utils.StringUtils.HumpToline(pidProperty);
         final String displayProperty2 = com.baidu.utils.StringUtils.HumpToline(displayProperty);
