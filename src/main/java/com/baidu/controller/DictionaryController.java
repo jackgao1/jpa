@@ -18,7 +18,7 @@ public class DictionaryController {
     @Autowired
     private DictionaryService dictionaryService;
 
-    @GetMapping("/insertdic")
+    @GetMapping("/")
     public String insertdic() {
         return "insertdic";
     }

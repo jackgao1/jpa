@@ -16,8 +16,6 @@ import java.util.Date;
 @Table(name = "t_rk_jbxx")
 public class RkJbxx implements Serializable {
 
-    private static final long serialVersionUID = 1562864593567774067L;
-
     /**
      * 人口编码
      */

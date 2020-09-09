@@ -90,7 +90,7 @@ public class DictionaryService {
 
 
         List<TreeNode> list = jdbcTemplate.query(
-                "SELECT " + idProperty2 + ", " + (StringUtils.isEmpty(pidProperty2) ? "" : (pidProperty2 + ", ")) + displayProperty2 + " FROM " + entityName2 + dictionaryFilterScript2 + " a", new Object[]{},
+                "SELECT " + idProperty2 + ", " + (StringUtils.isEmpty(pidProperty2) ? "" : (pidProperty2 + ", ")) + displayProperty2 + " FROM " + entityName2 + dictionaryFilterScript2, new Object[]{},
                 (rs, rowNum) -> {
 
                     TreeNode treeNode = new TreeNode(rs.getString(idProperty2), StringUtils.isEmpty(pidProperty2) ? null : rs.getString(pidProperty2), rs.getString(idProperty2), rs.getString(displayPropertys.get(0)));
