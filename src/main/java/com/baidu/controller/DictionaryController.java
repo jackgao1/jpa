@@ -23,6 +23,11 @@ public class DictionaryController {
         return "insertdic";
     }
 
+    @GetMapping("/test")
+    public String get() {
+        return "test";
+    }
+
     @GetMapping("/dictionaries/search")
     @ResponseBody
     public Page<Dictionary> search(String searchString, Pageable pageable) {

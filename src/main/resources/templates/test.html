@@ -1,0 +1,13 @@
+<!DOCTYPE html SYSTEM "http://www.thymeleaf.org/dtd/xhtml1-strict-thymeleaf-spring4-4.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title>test</title>
+</head>
+<body>
+<form accept-charset="UTF-8" th:action="@{/upload}" method="post" enctype="multipart/form-data" target="_blank">
+    文件:<input type="file" name="file"/>
+    <input type="submit" value="上传"/>
+</form>
+</body>
+</html>
