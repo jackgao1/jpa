@@ -30,45 +30,49 @@
 
     <template>
         <el-table
+                stripe
+                border
                 :data="getFileList"
-                style="width: 100%"
-                max-height="250">
+                style="width: 100%">
             <el-table-column
                     fixed
                     prop="rksj"
-                    label="上传日期"
-                    width="200">
+                    label="上传日期">
             </el-table-column>
             <el-table-column
                     fixed
                     prop="id"
                     label="文件ID"
-                    width="200">
+            >
             </el-table-column>
             <el-table-column
                     prop="fileName"
                     label="文件名称"
-                    width="200">
+            >
             </el-table-column>
             <el-table-column
                     prop="ossFileName"
                     label="MINIO文件名称"
-                    width="200">
+            >
             </el-table-column>
             <el-table-column
                     prop="fileSize"
                     label="文件大小"
-                    width="200">
+            >
             </el-table-column>
             <el-table-column
                     prop="fileType"
                     label="文件类型"
-                    width="200">
+            >
+            </el-table-column>
+            <el-table-column prop="url" label="图片">
+                <template slot-scope="scope">
+                    <img :src="scope.row.url" min-width="70" height="70"/>
+                </template>
             </el-table-column>
             <el-table-column
                     fixed="right"
-                    label="操作"
-                    width="120">
+                    label="操作">
                 <template slot-scope="scope">
                     <el-button
                             @click.native.prevent="deleteRow(scope.$index, getFileList)"
