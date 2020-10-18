@@ -3,11 +3,134 @@
 <head>
     <meta charset="UTF-8"/>
     <title>test</title>
+    <script src="https://cdn.staticfile.org/jquery/1.10.2/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <script>Vue.config.productionTip = false</script>
+    <!-- 引入样式 -->
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css"/>
+    <!-- 引入组件库 -->
+    <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
 </head>
 <body>
-<form accept-charset="UTF-8" th:action="@{/upload}" method="post" enctype="multipart/form-data" target="_blank">
-    文件:<input type="file" name="file"/>
-    <input type="submit" value="上传"/>
-</form>
+<div id="div">
+    <el-upload
+            class="upload-demo"
+            ref="upload"
+            action="upload"
+            :on-preview="handlePreview"
+            :accept="accept"
+            :on-remove="handleRemove"
+            :file-list="fileList"
+            :auto-upload="false">
+        <el-button slot="trigger" size="small" type="primary">选取文件</el-button>
+        <el-button style="margin-left: 10px;" size="small" type="success" @click.prevent="submitUpload">上传到服务器
+        </el-button>
+    </el-upload>
+
+    <template>
+        <el-table
+                :data="getFileList"
+                style="width: 100%"
+                max-height="250">
+            <el-table-column
+                    fixed
+                    prop="rksj"
+                    label="上传日期"
+                    width="200">
+            </el-table-column>
+            <el-table-column
+                    fixed
+                    prop="id"
+                    label="文件ID"
+                    width="200">
+            </el-table-column>
+            <el-table-column
+                    prop="fileName"
+                    label="文件名称"
+                    width="200">
+            </el-table-column>
+            <el-table-column
+                    prop="ossFileName"
+                    label="MINIO文件名称"
+                    width="200">
+            </el-table-column>
+            <el-table-column
+                    prop="fileSize"
+                    label="文件大小"
+                    width="200">
+            </el-table-column>
+            <el-table-column
+                    prop="fileType"
+                    label="文件类型"
+                    width="200">
+            </el-table-column>
+            <el-table-column
+                    fixed="right"
+                    label="操作"
+                    width="120">
+                <template slot-scope="scope">
+                    <el-button
+                            @click.native.prevent="deleteRow(scope.$index, getFileList)"
+                            type="text"
+                            size="small">
+                        删除
+                    </el-button>
+                </template>
+            </el-table-column>
+        </el-table>
+    </template>
+</div>
 </body>
+
+<script>
+    new Vue({
+        el: '#div',
+        data: {
+            getFileList: [],
+            accept: ".3gpp,.ac3,.asf,.au,.css,.csv,.doc,.dot,.dtd,.dwg,.dxf,.gif,.htm,.html,.jp2,.jpe,.jpeg,.jpg,.js,.json,.mp2,.mp3,.mp4,.mpeg,.mpg,.mpp,.ogg,.pdf,.png,.pot,.pps,.ppt,.rtf,.svf,.tif,.tiff,.txt,.wdb,.wps,.xhtml,.xlc,.xlm,.xls,.xlt,.xlw,.xml,.zip"
+        },
+        created: function () {
+            this.getFileLists()
+        },
+        methods: {
+            submitUpload: function () {
+                var _this = this
+                _this.$refs.upload.submit();
+                _this.getFileLists();
+            },
+            handleRemove: function (file, fileList) {
+                console.log(file, fileList);
+            },
+            handlePreview: function (file) {
+                console.log(file);
+            },
+            getFileLists: function () {
+                var _this = this
+                axios.get('/getFileList', {
+                    params: {}
+                })
+                    .then(function (response) {
+                        _this.getFileList = response.data
+                        console.log(response.data);
+                    })
+                    .catch(function (error) {
+                        console.log(error);
+                    });
+            },
+            deleteRow: function (index, rows) {
+                var _this = this
+                axios.delete('/delete', {
+                    params: {ossFileName: rows[index].ossFileName}
+                })
+                    .then(function (response) {
+                        _this.getFileLists()
+                    })
+                    .catch(function (error) {
+                        console.log(error);
+                    });
+            }
+        }
+    })
+</script>
 </html>

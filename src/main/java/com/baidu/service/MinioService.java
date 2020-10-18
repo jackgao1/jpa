@@ -1,19 +1,23 @@
 package com.baidu.service;
 
+import com.baidu.entity.Minio;
+import com.baidu.entity.repository.MinioRepository;
+import com.baidu.utils.StringUtils;
 import com.google.api.client.util.IOUtils;
 import io.minio.MinioClient;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
+import javax.transaction.Transactional;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -22,7 +26,10 @@ import java.util.Map;
  */
 @Service
 @Component
+@Transactional
 public class MinioService {
+    @Autowired
+    private MinioRepository minioRepository;
     @Value("${url}")
     private String url;
     @Value("${accessKey}")
@@ -33,20 +40,29 @@ public class MinioService {
     private String bucketName;
 
     //上传文件到minio服务
-    public Map<String, Object> upload(@RequestParam("file") MultipartFile file) {
+    public Map<String, Object> upload(MultipartFile file) {
+        Minio minio = new Minio();
         Map<String, Object> map = new HashMap<>();
         try {
             MinioClient minioClient = new MinioClient(url, accessKey, secretKey);
             InputStream inputStream = file.getInputStream(); //得到文件流
-            String contentType = file.getContentType();  //类型
+            String fileType = file.getContentType();  //类型
+            String fileSize = StringUtils.getNetFileSizeDescription(file.getSize());
             String fileName = file.getOriginalFilename(); //文件名
-            String OssFileName = new SimpleDateFormat("yyyyMMddHHmmssSSS").format(new Date()) + fileName.substring(fileName.lastIndexOf('.'), fileName.length());
-            minioClient.putObject(bucketName, OssFileName, inputStream, contentType); //把文件放置Minio桶(文件夹)
-            String url = minioClient.presignedGetObject(bucketName, OssFileName);
+            String ossFileName = new SimpleDateFormat("yyyyMMddHHmmssSSS").format(new Date()) + fileName.substring(fileName.lastIndexOf('.'), fileName.length());
+            minioClient.putObject(bucketName, ossFileName, inputStream, fileType); //把文件放置Minio桶(文件夹)
+            String url = minioClient.presignedGetObject(bucketName, ossFileName);
+            minio.setFileName(fileName);
+            minio.setFileSize(fileSize);
+            minio.setFileType(fileType);
+            minio.setOssFileName(ossFileName);
+            minio.setUrl(url);
+            minioRepository.save(minio);
             map.put("url", url);
             map.put("code", "上传成功");
-            map.put("OssFileName", OssFileName);
-            map.put("contentType", contentType);
+            map.put("ossFileName", ossFileName);
+            map.put("fileType", fileType);
+            map.put("fileSize", fileSize);
         } catch (Exception e) {
             map.put("code", "上传失败");
         }
@@ -54,12 +70,11 @@ public class MinioService {
     }
 
     //下载minio服务的文件
-    @GetMapping("download")
-    public String download(HttpServletResponse response, String OssFileName) {
+    public String download(HttpServletResponse response, String ossFileName) {
         try {
             MinioClient minioClient = new MinioClient(url, accessKey, secretKey);
-            InputStream fileInputStream = minioClient.getObject(bucketName, OssFileName);
-            response.setHeader("Content-Disposition", "attachment;filename=" + OssFileName);
+            InputStream fileInputStream = minioClient.getObject(bucketName, ossFileName);
+            response.setHeader("Content-Disposition", "attachment;filename=" + ossFileName);
             response.setContentType("application/force-download");
             response.setCharacterEncoding("UTF-8");
             IOUtils.copy(fileInputStream, response.getOutputStream());
@@ -70,15 +85,21 @@ public class MinioService {
         }
     }
 
-    //获取minio文件的下载地址
-    @GetMapping("url")
-    public String getUrl(String OssFileName) {
+    //文件删除
+    public String delete(String ossFileName) {
         try {
             MinioClient minioClient = new MinioClient(url, accessKey, secretKey);
-            return minioClient.presignedGetObject(bucketName, OssFileName);
+            minioClient.removeObject(bucketName, ossFileName);
+            minioRepository.deleteByOssFileName(ossFileName);
         } catch (Exception e) {
-            return "获取失败";
+            return "删除失败" + e.getMessage();
         }
+        return "删除成功";
+    }
+
+    //获取文件列表
+    public List<Minio> getFileList() {
+        return minioRepository.findAll();
     }
 
 }

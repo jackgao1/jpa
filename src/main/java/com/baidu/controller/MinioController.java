@@ -1,14 +1,13 @@
 package com.baidu.controller;
 
+import com.baidu.entity.Minio;
 import com.baidu.service.MinioService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -28,13 +27,20 @@ public class MinioController {
 
     //下载minio服务的文件
     @GetMapping("download")
-    public String download(HttpServletResponse response, String OssFileName) {
-        return minioService.download(response, OssFileName);
+    public String download(HttpServletResponse response, String ossFileName) {
+        return minioService.download(response, ossFileName);
     }
 
-    //获取minio文件的下载地址
-    @GetMapping("url")
-    public String getUrl(String OssFileName) {
-        return minioService.getUrl(OssFileName);
+    //删除minio服务的文件
+    @DeleteMapping("delete")
+    public String delete(String ossFileName) {
+        return minioService.delete(ossFileName);
+    }
+
+    //获取文件列表
+    @GetMapping("getFileList")
+    public List<Minio> getFileList() {
+        return minioService.getFileList();
     }
 }
+
