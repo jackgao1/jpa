@@ -37,10 +37,11 @@ public class MinioController {
         return minioService.delete(ossFileName);
     }
 
-    //获取文件列表
-    @GetMapping("getFileList")
-    public List<Minio> getFileList() {
-        return minioService.getFileList();
+    //获取文件信息列表
+    @GetMapping("getFileInfoList")
+    public List<Minio> getFileInfoList() {
+        return minioService.getFileInfoList();
     }
+
 }
 

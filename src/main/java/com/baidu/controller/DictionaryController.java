@@ -23,9 +23,9 @@ public class DictionaryController {
         return "insertdic";
     }
 
-    @GetMapping("/test")
+    @GetMapping("/file")
     public String get() {
-        return "test";
+        return "file";
     }
 
     @GetMapping("/dictionaries/search")

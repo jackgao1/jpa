@@ -32,7 +32,7 @@
         <el-table
                 stripe
                 border
-                :data="getFileList"
+                :data="getFileInfoList"
                 style="width: 100%">
             <el-table-column
                     fixed
@@ -75,7 +75,7 @@
                     label="操作">
                 <template slot-scope="scope">
                     <el-button
-                            @click.native.prevent="deleteRow(scope.$index, getFileList)"
+                            @click.native.prevent="deleteRow(scope.$index, getFileInfoList)"
                             type="text"
                             size="small">
                         删除
@@ -91,17 +91,17 @@
     new Vue({
         el: '#div',
         data: {
-            getFileList: [],
+            getFileInfoList: [],
             accept: ".3gpp,.ac3,.asf,.au,.css,.csv,.doc,.dot,.dtd,.dwg,.dxf,.gif,.htm,.html,.jp2,.jpe,.jpeg,.jpg,.js,.json,.mp2,.mp3,.mp4,.mpeg,.mpg,.mpp,.ogg,.pdf,.png,.pot,.pps,.ppt,.rtf,.svf,.tif,.tiff,.txt,.wdb,.wps,.xhtml,.xlc,.xlm,.xls,.xlt,.xlw,.xml,.zip"
         },
         created: function () {
-            this.getFileLists()
+            this.getFileInfoLists()
         },
         methods: {
             submitUpload: function () {
                 var _this = this
                 _this.$refs.upload.submit();
-                _this.getFileLists();
+                _this.getFileInfoLists();
             },
             handleRemove: function (file, fileList) {
                 console.log(file, fileList);
@@ -109,13 +109,13 @@
             handlePreview: function (file) {
                 console.log(file);
             },
-            getFileLists: function () {
+            getFileInfoLists: function () {
                 var _this = this
-                axios.get('/getFileList', {
+                axios.get('/getFileInfoList', {
                     params: {}
                 })
                     .then(function (response) {
-                        _this.getFileList = response.data
+                        _this.getFileInfoList = response.data
                         console.log(response.data);
                     })
                     .catch(function (error) {
@@ -128,7 +128,7 @@
                     params: {ossFileName: rows[index].ossFileName}
                 })
                     .then(function (response) {
-                        _this.getFileLists()
+                        _this.getFileInfoLists()
                     })
                     .catch(function (error) {
                         console.log(error);
