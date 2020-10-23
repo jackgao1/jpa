@@ -29,21 +29,23 @@ import java.util.*;
  * @date 2020/10/17 20:34
  */
 @Service
-@Component
 @Transactional
 public class MinioService {
     private Logger logger = LoggerFactory.getLogger(MinioService.class);
     @Autowired
     private MinioRepository minioRepository;
-    @Value("${url}")
-    private String url;
-    @Value("${accessKey}")
-    private String accessKey;
-    @Value("${secretKey}")
-    private String secretKey;
-    @Value("${bucketName}")
-    private String bucketName;
-
+//    @Value("${url}")
+//    private String url;
+//    @Value("${accessKey}")
+//    private String accessKey;
+//    @Value("${secretKey}")
+//    private String secretKey;
+//    @Value("${bucketName}")
+//    private String bucketName;
+    private String url="192.168.1.137:9000";
+    private String accessKey="admin";
+    private String secretKey="admin123456";
+    private String bucketName="file";
     //上传文件到minio服务
     public Map<String, Object> upload(MultipartFile file) {
         Minio minio = null;
@@ -54,9 +56,9 @@ public class MinioService {
         MockMultipartFile mockMultipartFile =null;
         try {
             //压缩图片大小
-            bytes = PicUtils.compressPicForScale(file.getBytes(), 30, "x");
-            inputStream = new ByteArrayInputStream(bytes);
-            mockMultipartFile = new MockMultipartFile(ContentType.APPLICATION_OCTET_STREAM.toString(), inputStream);
+//            bytes = PicUtils.compressPicForScale(file.getBytes(), 30, "x");
+//            inputStream = new ByteArrayInputStream(bytes);
+//            mockMultipartFile = new MockMultipartFile(ContentType.APPLICATION_OCTET_STREAM.toString(), inputStream);
 
             minioClient = getMinioClient();
             String fileType = file.getContentType();  //类型
@@ -117,15 +119,15 @@ public class MinioService {
     //获取文件信息列表
     public List<Minio> getFileInfoList() {
 
-        Iterable<Result<Item>> results = null;
-        try {
-            results = getMinioClient().listObjects(bucketName);
-            for(Result<Item> re : results){
-                System.out.println(re.get().objectName());
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+//        Iterable<Result<Item>> results = null;
+//        try {
+//            results = getMinioClient().listObjects(bucketName);
+//            for(Result<Item> re : results){
+//                System.out.println(re.get().objectName());
+//            }
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
 
         return minioRepository.findAll();
     }
