@@ -1,5 +1,6 @@
 package com.baidu.entity;
 
+import com.baidu.utils.SpringContextHolder;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
@@ -28,10 +29,10 @@ public class User implements Serializable {
 
     public User() {
     }
-//    @Transient
-//    public String getPozjzl_name() {
-//        return SpringContextHolder.dictionaryService.getMcBydm("D_RK_ZJZL", this.pozjzl);
-//    }
+    @Transient
+    public String getPozjzl_name() {
+        return SpringContextHolder.dictionaryService.getMcBydm("D_RK_WHCD", "2");
+    }
 
     public String getId() {
         return id;

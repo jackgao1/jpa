@@ -2,7 +2,6 @@ package com.baidu.controller;
 
 import com.baidu.service.MailService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.io.BufferedReader;
@@ -20,30 +19,27 @@ public class MailController {
     private static final String SUBJECT = "平凡的世界";
     @Autowired
     private MailService mailService;
-     @GetMapping("testMail")
-    public void testMail(){
-//         mailService.sendSimpleMailMessge(TO1, SUBJECT, CONTENT);
-         File file = new File("C:\\Users\\mark\\Downloads\\15201403854540.txt");
-         System.out.println(txtString(file));
-     }
-    static class Demo implements Runnable{
+
+    static class Demo implements Runnable {
         @Override
         public void run() {
             System.out.println("撒旦");
         }
     }
 
-    public String txtString(File file){
+    public String txtString(File file) {
         StringBuilder result = new StringBuilder();
-        try{
-            BufferedReader br = new BufferedReader(new FileReader(file));//构造一个BufferedReader类来读取文件
+        try {
+            //构造一个BufferedReader类来读取文件
+            BufferedReader br = new BufferedReader(new FileReader(file));
             String s = null;
-            while((s = br.readLine())!=null){//使用readLine方法，一次读一行
-                result.append(System.lineSeparator()+s);
-                mailService.sendSimpleMailMessge(TO1, SUBJECT, System.lineSeparator()+s);
+            //使用readLine方法，一次读一行
+            while ((s = br.readLine()) != null) {
+                result.append(System.lineSeparator() + s);
+                mailService.sendSimpleMailMessge(TO1, SUBJECT, System.lineSeparator() + s);
             }
             br.close();
-        }catch(Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return result.toString();

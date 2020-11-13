@@ -9,6 +9,9 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
+/**
+ * @author mark
+ */
 @RestController
 public class UserController {
     @Autowired
@@ -18,8 +21,4 @@ public class UserController {
     public Page findAll(@RequestParam Map<String, String> params, Pageable pageable) {
         return userRepository.findAll(new QueryBuilder(params), pageable);
     }
-//    @GetMapping("findByNameMatch")
-//    List<User> findByNameMatch(){
-//        userRepository.findByNameMatch(name,)
-//    }
 }

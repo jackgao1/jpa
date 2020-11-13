@@ -4,6 +4,7 @@ import com.baidu.entity.Dictionary;
 import com.baidu.entity.DictionaryItem;
 import com.baidu.entity.repository.DictionaryItemRepository;
 import com.baidu.entity.repository.DictionaryRepository;
+import com.baidu.utils.SpringContextHolder;
 import com.baidu.utils.TreeBuilder;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +19,7 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -132,5 +134,44 @@ public class DictionaryService {
         public void setLabel(String label) {
             this.label = label;
         }
+    }
+
+    /**
+     * 根据字典名称和代码获取代码对应的名称
+     *
+     * @param dicName
+     * @param dm
+     * @return
+     */
+    public String getMcBydm(String dicName, String dm) {
+        if (StringUtils.isEmpty(dm) || StringUtils.isEmpty(dicName)) {
+            return "";
+        }
+        dicName = dicName.toUpperCase();
+        if (dm.split(",").length == 1) {
+            return getMcBydmOne(dicName, dm);
+        } else {
+            return String.join(",", getMcsByDmMore(dm, dicName));
+        }
+    }
+
+    public String getMcBydmOne(String dicName, String dm) {
+        String sql = "select c.mc as mc from (select a.code dicname,b.id,b.code dm,b.name mc,b.py,b.seq,b.short_name jc,(select code from sys_dictionary_item d where d.dictionary_id=a.id and d.id=b.pid ) pdm from sys_dictionary a, sys_dictionary_item b where a.status='01' and (b.status='01' or b.status is null ) and a.id=b.dictionary_id) c where dicname=? and c.dm=?";
+        return jdbcTemplate.queryForMap(sql, dicName, dm).get("MC").toString();
+    }
+
+    public List<String> getMcsByDmMore(String dms, String dicName) {
+        List<String> names = new ArrayList<>();
+        String[] dmsArray = dms.split(",");
+        if (dmsArray.length == 0) {
+            return new ArrayList<>();
+        }
+        for (String dm : dmsArray) {
+            String name = getMcBydmOne(dicName, dm);
+            if (name != null && (!"".equals(name))) {
+                names.add(name);
+            }
+        }
+        return names;
     }
 }

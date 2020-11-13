@@ -13,6 +13,9 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+/**
+ * @author mark
+ */
 @Controller
 public class DictionaryController {
     @Autowired
@@ -21,11 +24,6 @@ public class DictionaryController {
     @GetMapping("/")
     public String insertdic() {
         return "insertdic";
-    }
-
-    @GetMapping("/file")
-    public String get() {
-        return "file";
     }
 
     @GetMapping("/dictionaries/search")

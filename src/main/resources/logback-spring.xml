@@ -207,8 +207,5 @@
             <appender-ref ref="WARN_FILE" />
         </root>
     </springProfile>
-
     <include resource="org/springframework/boot/logging/logback/base.xml"/>
-
-
 </configuration>

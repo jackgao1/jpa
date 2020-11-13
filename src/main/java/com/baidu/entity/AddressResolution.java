@@ -1,9 +1,5 @@
 package com.baidu.entity;
 
-/**
- * @author: liangbo
- * @date: 2020/8/19 13:55
- */
 public class AddressResolution {
 
     private String province;
