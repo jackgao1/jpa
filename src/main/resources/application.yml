@@ -1,7 +1,0 @@
-spring:
-  thymeleaf:
-    cache: false
-    encoding: UTF-8
-    servlet:
-      content-type: text/html
-    mode: LEGACYHTML5
